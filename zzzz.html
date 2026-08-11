@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wire — All Sports, One Board</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #0a0c10;
+    --panel: #12151b;
+    --panel-2: #171b22;
+    --line: #262b34;
+    --amber: #ffb627;
+    --amber-dim: #8a6a20;
+    --live: #ff4d4d;
+    --teal: #2dd4bf;
+    --text: #ecebe6;
+    --muted: #8b93a1;
+    --muted-2: #5b6270;
+    --star: #ffd54a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:60px;}
+  ::selection{background:var(--amber);color:#0a0c10;}
+  button{font-family:inherit;}
+
+  /* ===== Header ===== */
+  header{
+    border-bottom:1px solid var(--line);
+    background:radial-gradient(1200px 300px at 15% -20%, rgba(255,182,39,0.08), transparent), var(--bg);
+    padding:24px 20px 0 20px;
+    position:sticky;top:0;z-index:50;backdrop-filter: blur(6px);
+  }
+  .header-inner{max-width:1140px;margin:0 auto;}
+  .brand-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:16px;}
+  .brand{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(26px,5vw,36px);letter-spacing:0.5px;display:flex;align-items:center;gap:10px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 0 10px var(--live);animation:pulse 1.6s infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+
+  .sync-status{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.6px;color:var(--muted-2);text-align:right;line-height:1.5;}
+  .sync-status .live-on{color:var(--teal);}
+  .sync-status .updated{display:block;font-family:'Oswald',sans-serif;color:var(--amber);font-size:13px;font-variant-numeric:tabular-nums;}
+
+  .search-row{display:flex;gap:8px;margin-bottom:14px;}
+  .search-box{
+    flex:1;position:relative;
+  }
+  .search-box input{
+    width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:14.5px;
+    padding:11px 14px 11px 38px;outline:none;transition:border-color .15s;
+  }
+  .search-box input:focus{border-color:var(--amber-dim);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0.5;}
+  .search-box .clear-btn{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 6px;display:none;
+  }
+  .search-box.has-value .clear-btn{display:block;}
+
+  /* ===== Live ticker ===== */
+  .live-strip{
+    display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none;
+  }
+  .live-strip::-webkit-scrollbar{display:none;}
+  .live-strip .lchip{
+    flex:0 0 auto;background:var(--panel);border:1px solid rgba(255,77,77,0.4);border-radius:10px;
+    padding:8px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .live-strip .lchip:hover{border-color:var(--live);}
+  .live-strip .lchip .lg-league{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--live);font-size:10.5px;display:flex;align-items:center;gap:4px;}
+  .live-strip .lchip .lg-league .d{width:5px;height:5px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite;}
+  .live-strip .lchip .lg-teams{font-weight:600;}
+  .live-strip .empty{color:var(--muted-2);font-size:13px;padding:10px 2px;}
+
+  /* ===== Tabs ===== */
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:0.6px;text-transform:uppercase;
+    padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    cursor:pointer;white-space:nowrap;transition:all .15s ease;display:flex;align-items:center;gap:6px;
+  }
+  .tab:hover{color:var(--text);border-color:var(--amber-dim);}
+  .tab.active{background:var(--amber);border-color:var(--amber);color:#141414;}
+  .tab .live-flag{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 6px var(--live);}
+  .tab .badge{
+    background:rgba(255,77,77,0.18);color:var(--live);border-radius:999px;font-size:10.5px;padding:1px 6px;font-family:'Oswald',sans-serif;
+  }
+  .tab.active .badge{background:rgba(0,0,0,0.15);color:#141414;}
+
+  main{max-width:1140px;margin:0 auto;padding:26px 20px 0;}
+
+  .section-title{font-family:'Oswald',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:28px 0 12px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--line);}
+  .section-title.first{margin-top:0;}
+
+  /* ===== Game cards ===== */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden;}
+  .card.live{border-color:rgba(255,77,77,0.5);box-shadow:0 0 0 1px rgba(255,77,77,0.12),0 0 24px rgba(255,77,77,0.06);}
+  .card-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted-2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .card-tag .league-chip{color:var(--muted);}
+  .status-live{color:var(--live);font-weight:700;display:flex;align-items:center;gap:5px;}
+  .status-live .d{width:6px;height:6px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite;}
+  .status-final{color:var(--muted-2);}
+  .status-sched{color:var(--teal);}
+  .team-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:8px;}
+  .team-left{display:flex;align-items:center;gap:7px;min-width:0;}
+  .star-btn{background:none;border:none;cursor:pointer;color:var(--line);font-size:15px;padding:0;line-height:1;flex-shrink:0;}
+  .star-btn.on{color:var(--star);}
+  .star-btn:hover{color:var(--star);}
+  .team-name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .team-name.winner{color:var(--text);font-weight:700;}
+  .team-name.loser{color:var(--muted);}
+  .score{font-family:'Oswald',sans-serif;font-size:19px;font-variant-numeric:tabular-nums;font-weight:600;flex-shrink:0;}
+  .score.winner{color:var(--amber);}
+  .score.loser{color:var(--muted);}
+  .vs-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0 2px;margin-top:4px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted);}
+
+  /* Event-style card */
+  .event-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .event-name{font-weight:600;font-size:15px;}
+  .event-sub{color:var(--muted);font-size:12.5px;margin-top:3px;}
+  .event-date{font-family:'Barlow Condensed',sans-serif;color:var(--amber);font-size:14px;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+  .pill{font-family:'Barlow Condensed',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted-2);}
+  .pill.title-fight{color:var(--amber);border-color:var(--amber-dim);}
+
+  /* ===== Standings ===== */
+  table.standings{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.standings th{text-align:left;color:var(--muted-2);font-weight:500;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:11.5px;padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.standings td{padding:8px 10px;border-bottom:1px solid rgba(38,43,52,0.5);}
+  table.standings tr:hover td{background:rgba(255,255,255,0.02);}
+  .clinch{font-size:10px;color:var(--muted-2);margin-left:6px;}
+  .clinch.div{color:var(--teal);}
+  .clinch.conf,.clinch.wc{color:var(--amber);}
+  .div-header td{font-family:'Barlow Condensed',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:11.5px;padding-top:16px;border-bottom:none;}
+
+  /* ===== Placeholder / empty ===== */
+  .placeholder{background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:40px 24px;text-align:center;color:var(--muted);}
+  .placeholder h3{color:var(--text);font-family:'Oswald',sans-serif;font-weight:500;margin-bottom:8px;}
+  .refresh-btn{margin-top:16px;background:var(--amber);color:#141414;border:none;border-radius:999px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:10px 22px;font-size:14px;cursor:pointer;}
+  .refresh-btn:hover{background:#ffc659;}
+  .refresh-btn.small{background:transparent;border:1px solid var(--amber-dim);color:var(--amber);padding:6px 14px;font-size:12px;margin:0;}
+  .refresh-btn.small:hover{background:rgba(255,182,39,0.08);}
+  .panel-note{color:var(--muted-2);font-size:12px;margin-top:6px;}
+  .empty-note{color:var(--muted-2);font-size:13.5px;padding:6px 2px 18px;}
+
+  /* Favorites tab */
+  .add-fav-row{display:flex;gap:8px;margin-bottom:20px;}
+  .add-fav-row input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;outline:none;}
+  .add-fav-row input:focus{border-color:var(--amber-dim);}
+  .add-fav-row button{background:var(--amber);color:#141414;border:none;border-radius:8px;padding:0 18px;font-weight:700;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;cursor:pointer;}
+  .fav-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+  .fav-chip{background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:8px;}
+  .fav-chip .star-btn{color:var(--star);}
+  .fav-chip .rm{background:none;border:none;color:var(--muted-2);cursor:pointer;font-size:14px;}
+  .fav-chip .rm:hover{color:var(--live);}
+
+  footer{max-width:1140px;margin:50px auto 0;padding:20px;border-top:1px solid var(--line);color:var(--muted-2);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+  @media (max-width:520px){
+    .brand-row{flex-direction:column;}
+    .sync-status{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="brand"><span class="dot"></span>THE WIRE</div>
+      <div class="sync-status">
+        <span id="syncLabel" class="live-on">● Auto-syncing every 45s</span>
+        <span class="updated" id="syncTime">—</span>
+      </div>
+    </div>
+    <div class="search-row">
+      <div class="search-box" id="searchBox">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="searchInput" type="text" placeholder="Search any team across every sport…" autocomplete="off">
+        <button class="clear-btn" id="clearSearch">✕</button>
+      </div>
+    </div>
+    <div class="live-strip" id="liveStrip"></div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <span id="footerNote">Live scores, schedules &amp; standings across every major sport — refreshing automatically.</span>
+  <span>Star a team to pin it to My Teams.</span>
+</footer>
+
+<script>
+/* ============================================================
+   SNAPSHOT DATA — fallback shown instantly on load, and used
+   for leagues ESPN's public scoreboard doesn't cover well
+   (golf leaderboards, tennis draws, NASCAR, cricket). Everything
+   else gets silently replaced by a live fetch once it lands.
+   ============================================================ */
+const DATA = {
+nfl: { label:"NFL", loaded:true, note:"Preseason underway · regular season kicks off Sept 10",
+  games:[
+    {status:"final", a:"Cardinals", as:30, h:"Panthers", hs:33, tag:"Hall of Fame Game · Aug 6"},
+    {status:"sched", a:"Bengals", h:"Lions", time:"Thu Aug 13, 7:00 PM ET"},
+    {status:"sched", a:"Packers", h:"Steelers", time:"Thu Aug 13, 7:00 PM ET"},
+    {status:"sched", a:"Colts", h:"Patriots", time:"Thu Aug 13, 7:30 PM ET"},
+    {status:"sched", a:"Cardinals", h:"Raiders", time:"Thu Aug 13, 8:00 PM ET"},
+    {status:"sched", a:"Chargers", h:"Texans", time:"Thu Aug 13, 8:00 PM ET"},
+    {status:"sched", a:"Titans", h:"49ers", time:"Thu Aug 13, 9:00 PM ET"},
+  ],
+  standingsNote:"Final 2025 season standings (2026 season starts Sept 10)",
+  standings:[
+    {conf:"AFC", div:"AFC East", team:"Patriots", w:14,l:3,tag:"z"},
+    {conf:"AFC", div:"AFC North", team:"Steelers", w:10,l:7,tag:"y"},
+    {conf:"AFC", div:"AFC South", team:"Jaguars", w:13,l:4,tag:"y"},
+    {conf:"AFC", div:"AFC West", team:"Broncos", w:14,l:3,tag:"z"},
+    {conf:"NFC", div:"NFC East", team:"Eagles", w:11,l:6,tag:"y"},
+    {conf:"NFC", div:"NFC North", team:"Bears", w:11,l:6,tag:"y"},
+    {conf:"NFC", div:"NFC South", team:"Panthers", w:8,l:9,tag:"y"},
+    {conf:"NFC", div:"NFC West", team:"Seahawks", w:14,l:3,tag:"z"},
+  ],
+  champion:"Seattle Seahawks won Super Bowl LX, def. New England Patriots 29–13"
+},
+nba: { label:"NBA", loaded:true, note:"Off-season — tip-off in October", games:[],
+  champion:"New York Knicks won the 2026 NBA Finals 4–1 over San Antonio Spurs" },
+mlb: { label:"MLB", loaded:true, note:"Regular season in full swing",
+  games:[
+    {status:"sched", a:"Pirates", h:"Marlins", time:"Tue Aug 11, 6:40 PM ET"},
+    {status:"sched", a:"Mariners", h:"Yankees", time:"Tue Aug 11, 7:05 PM ET"},
+    {status:"sched", a:"Mets", h:"Braves", time:"Tue Aug 11, 7:15 PM ET"},
+    {status:"final", a:"Royals", as:5, h:"Dodgers", hs:6, tag:"Mon Aug 10"},
+    {status:"final", a:"Phillies", as:6, h:"Cardinals", hs:5, tag:"Mon Aug 10"},
+  ]
+},
+nhl: { label:"NHL", loaded:true, note:"Off-season — 2026-27 season opens Sept 29",
+  games:[
+    {status:"sched", a:"Panthers", h:"Hurricanes", time:"Tue Sep 29, 5:00 PM ET"},
+    {status:"sched", a:"Canadiens", h:"Maple Leafs", time:"Tue Sep 29, 7:00 PM ET"},
+  ],
+  champion:"Carolina Hurricanes won the 2026 Stanley Cup 4–2 over Vegas Golden Knights"
+},
+epl: { label:"Premier League", loaded:true, note:"2026-27 season opens Aug 21",
+  games:[
+    {status:"sched", a:"Coventry City", h:"Arsenal", time:"Fri Aug 21, 3:00 PM ET"},
+    {status:"sched", a:"Man United", h:"Hull City", time:"Sat Aug 22, 7:30 AM ET"},
+    {status:"sched", a:"Liverpool", h:"Newcastle", time:"Sun Aug 23, 11:30 AM ET"},
+  ]
+},
+golf: { label:"Golf", loaded:true, live:false, note:"PGA Tour — snapshot only (leaderboard format isn't auto-synced)",
+  events:[
+    {name:"Truist Championship", date:"May 7", status:"Completed"},
+    {name:"Masters Tournament", date:"Apr 9", status:"Completed"},
+  ]
+},
+mma: { label:"MMA", loaded:true, note:"UFC 330: Makhachev vs. Machado Garry headlines this weekend",
+  games:[],
+  events:[
+    {name:"UFC 330: Makhachev vs. Machado Garry", sub:"Welterweight title", date:"Sat Aug 15, 10:30 PM ET", title:true},
+    {name:"UFC 330 co-main", sub:"Dern vs Robertson · Strawweight title", date:"Sat Aug 15, 10:00 PM ET", title:true},
+    {name:"Dana White's Contender Series", sub:"Season 10", date:"Tue Aug 11, 7:00 PM ET"},
+  ]
+},
+tennis: { label:"Tennis", loaded:true, live:false, note:"ATP Challenger/ITF snapshot — main tour draws aren't auto-synced",
+  events:[
+    {name:"Wallin vs Taberner", sub:"ATP Challenger Hamburg", date:"Live now", live:true},
+    {name:"Houkes vs Nagal", sub:"ATP Challenger Hamburg", date:"Tue Aug 11, 10:00 AM ET"},
+  ]
+},
+wnba:{label:"WNBA", loaded:false, games:[]},
+ncaafb:{label:"NCAA Football", loaded:false, games:[]},
+ncaamb:{label:"NCAA Men's BB", loaded:false, games:[]},
+ncaawb:{label:"NCAA Women's BB", loaded:false, games:[]},
+laliga:{label:"La Liga", loaded:false, games:[]},
+seriea:{label:"Serie A", loaded:false, games:[]},
+bundesliga:{label:"Bundesliga", loaded:false, games:[]},
+ligue1:{label:"Ligue 1", loaded:false, games:[]},
+mls:{label:"MLS", loaded:false, games:[]},
+ucl:{label:"Champions League", loaded:false, games:[]},
+worldcup:{label:"World Cup", loaded:false, games:[]},
+nascar:{label:"NASCAR", loaded:false},
+cricket:{label:"Cricket", loaded:false},
+};
+
+const ORDER = ["favorites","nfl","nba","mlb","nhl","epl","golf","mma","tennis","wnba","ncaafb","ncaamb","ncaawb","laliga","seriea","bundesliga","ligue1","mls","ucl","worldcup","nascar","cricket"];
+
+/* Leagues ESPN's free public scoreboard endpoint covers — these
+   auto-refresh in the background. Anything not listed here stays
+   on the static snapshot above and refreshes only via chat. */
+const ESPN_PATH = {
+  nfl:"football/nfl", nba:"basketball/nba", mlb:"baseball/mlb", nhl:"hockey/nhl",
+  wnba:"basketball/wnba", ncaafb:"football/college-football",
+  ncaamb:"basketball/mens-college-basketball", ncaawb:"basketball/womens-college-basketball",
+  epl:"soccer/eng.1", laliga:"soccer/esp.1", seriea:"soccer/ita.1",
+  bundesliga:"soccer/ger.1", ligue1:"soccer/fra.1", mls:"soccer/usa.1",
+  ucl:"soccer/uefa.champions", worldcup:"soccer/fifa.world", mma:"mma/ufc"
+};
+
+const REFRESH_MS = 45000;
+let favorites = [];
+let liveNetworkOK = true; // flips false if every fetch fails (e.g. sandboxed preview)
+let lastGoodSync = null;
+
+/* ============================================================ */
+
+function fmtClock(d){
+  return (d||new Date()).toLocaleString('en-US', {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short'});
+}
+
+/* ---------- Live fetch + normalize ---------- */
+let warnedOnce = false;
+async function fetchLeague(key){
+  const path = ESPN_PATH[key];
+  if(!path) return null;
+  try{
+    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard`);
+    if(!res.ok) throw new Error('http '+res.status);
+    const json = await res.json();
+    return parseESPN(json);
+  }catch(err){
+    if(!warnedOnce){
+      console.warn('Live sync unreachable — expected inside the claude.ai preview sandbox, which blocks outbound network calls. This will work once the page is hosted outside claude.ai (GitHub Pages, etc).');
+      warnedOnce = true;
+    }
+    return null;
+  }
+}
+
+function parseESPN(json){
+  if(!json || !Array.isArray(json.events)) return [];
+  return json.events.map(ev => {
+    const comp = (ev.competitions && ev.competitions[0]) || {};
+    const competitors = comp.competitors || [];
+    const home = competitors.find(c=>c.homeAway==='home') || competitors[0] || {};
+    const away = competitors.find(c=>c.homeAway==='away') || competitors[1] || {};
+    const state = comp.status && comp.status.type ? comp.status.type.state : 'pre';
+    const status = state==='in' ? 'live' : state==='post' ? 'final' : 'sched';
+    const g = {
+      status,
+      a: (away.team && (away.team.shortDisplayName||away.team.name)) || away.athlete && away.athlete.shortName || 'TBD',
+      h: (home.team && (home.team.shortDisplayName||home.team.name)) || home.athlete && home.athlete.shortName || 'TBD',
+    };
+    if(status !== 'sched'){
+      g.as = parseInt(away.score, 10) || 0;
+      g.hs = parseInt(home.score, 10) || 0;
+    }
+    if(status === 'sched'){
+      g.time = fmtClock(new Date(ev.date));
+    }
+    if(status === 'live'){
+      g.tag = (comp.status.type.shortDetail) || 'In progress';
+    }
+    if(status === 'final'){
+      g.tag = new Date(ev.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    }
+    return g;
+  });
+}
+
+async function refreshAll(silent){
+  const keys = Object.keys(ESPN_PATH);
+  const results = await Promise.all(keys.map(k => fetchLeague(k)));
+  let anySuccess = false;
+  keys.forEach((k, i) => {
+    if(results[i] !== null){
+      anySuccess = true;
+      DATA[k].games = results[i];
+      DATA[k].loaded = true;
+    }
+  });
+  liveNetworkOK = anySuccess;
+  updateSyncStatus(anySuccess);
+  if(anySuccess) lastGoodSync = new Date();
+  renderTabs();
+  renderActive();
+  renderLiveStrip();
+}
+
+function updateSyncStatus(ok){
+  const label = document.getElementById('syncLabel');
+  const time = document.getElementById('syncTime');
+  if(ok){
+    label.textContent = `● Auto-syncing every ${REFRESH_MS/1000}s`;
+    label.className = 'live-on';
+    time.textContent = 'Updated ' + fmtClock();
+  } else {
+    label.textContent = '○ Live sync blocked in this preview';
+    label.className = '';
+    time.textContent = lastGoodSync ? 'Last live update ' + fmtClock(lastGoodSync) : 'Works once hosted outside claude.ai — showing snapshot';
+  }
+}
+
+/* ---------- Favorites (persistent, personal) ---------- */
+async function loadFavorites(){
+  try{
+    const res = await window.storage.get('favorite-teams', false);
+    favorites = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    favorites = [];
+  }
+}
+async function saveFavorites(){
+  try{ await window.storage.set('favorite-teams', JSON.stringify(favorites), false); }catch(e){}
+}
+function isFav(name){ return favorites.some(f => f.toLowerCase() === name.toLowerCase()); }
+async function toggleFav(name){
+  if(isFav(name)) favorites = favorites.filter(f => f.toLowerCase() !== name.toLowerCase());
+  else favorites.push(name);
+  await saveFavorites();
+  renderTabs();
+  renderActive();
+}
+
+/* ---------- Card renderers ---------- */
+function starBtn(name){
+  const on = isFav(name);
+  return `<button class="star-btn ${on?'on':''}" title="${on?'Remove from My Teams':'Add to My Teams'}" onclick="event.stopPropagation();toggleFav('${name.replace(/'/g,"\\'")}')">${on?'★':'☆'}</button>`;
+}
+
+function gameCard(g, leagueLabel){
+  let statusHtml = g.status==='live'
+    ? `<span class="status-live"><span class="d"></span>LIVE</span>`
+    : g.status==='final' ? `<span class="status-final">FINAL</span>` : `<span class="status-sched">UPCOMING</span>`;
+
+  const hasScore = (g.status==='final'||g.status==='live') && typeof g.hs==='number';
+  let awayCls='', homeCls='';
+  if(hasScore){
+    if(g.as>g.hs){awayCls='winner';homeCls='loser';}
+    else if(g.hs>g.as){homeCls='winner';awayCls='loser';}
+  }
+  return `
+  <div class="card ${g.status==='live'?'live':''}">
+    <div class="card-tag"><span class="league-chip">${leagueLabel?leagueLabel+' · ':''}${g.tag||''}</span>${statusHtml}</div>
+    <div class="team-row">
+      <span class="team-left">${starBtn(g.a)}<span class="team-name ${awayCls}">${g.a}</span></span>
+      ${hasScore?`<span class="score ${awayCls}">${g.as}</span>`:''}
+    </div>
+    <div class="team-row">
+      <span class="team-left">${starBtn(g.h)}<span class="team-name ${homeCls}">${g.h}</span></span>
+      ${hasScore?`<span class="score ${homeCls}">${g.hs}</span>`:''}
+    </div>
+    ${!hasScore?`<div class="vs-line"><span>${g.time||''}</span></div>`:''}
+  </div>`;
+}
+
+function eventCard(e){
+  return `
+  <div class="event-card">
+    <div>
+      <div class="event-name">${e.name} ${e.title?'<span class="pill title-fight">Title</span>':''} ${e.live?'<span class="pill" style="color:var(--live);border-color:var(--live)">Live</span>':''}</div>
+      ${e.sub?`<div class="event-sub">${e.sub}</div>`:''}
+    </div>
+    <div class="event-date">${e.date}${e.status?' · '+e.status:''}</div>
+  </div>`;
+}
+
+function standingsTable(league){
+  const groups = {};
+  league.standings.forEach(row => { (groups[row.div] = groups[row.div]||[]).push(row); });
+  let rows = '';
+  Object.keys(groups).forEach(div => {
+    rows += `<tr class="div-header"><td colspan="4">${div}</td></tr>`;
+    groups[div].forEach(r => {
+      const tagLabel = r.tag==='z'?'<span class="clinch conf">CONF</span>':r.tag==='y'?'<span class="clinch div">DIV</span>':r.tag==='x'?'<span class="clinch wc">WC</span>':'';
+      rows += `<tr><td>${r.team} ${tagLabel}</td><td>${r.w}</td><td>${r.l}</td><td>${(r.w/(r.w+r.l)).toFixed(3).slice(1)}</td></tr>`;
+    });
+  });
+  return `<table class="standings"><thead><tr><th>Team</th><th>W</th><th>L</th><th>PCT</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- League page ---------- */
+function renderLeague(key){
+  const league = DATA[key];
+  const wrap = document.createElement('div');
+
+  if(!league.loaded){
+    wrap.innerHTML = `
+      <div class="placeholder">
+        <h3>No board loaded for ${league.label} yet</h3>
+        <p>This league isn't on the auto-sync list. Ask for a fresh pull and I'll fetch current scores, schedule and standings.</p>
+        <button class="refresh-btn" onclick="requestRefresh('${league.label}')">Get live ${league.label} data</button>
+      </div>`;
+    return wrap;
+  }
+
+  let html = '';
+  if(league.note) html += `<div class="panel-note" style="margin-bottom:18px;font-size:13px;">${league.note}</div>`;
+  if(league.champion){
+    html += `<div class="event-card" style="border-color:var(--amber-dim);margin-bottom:18px;">
+      <div><div class="event-name">🏆 ${league.champion}</div></div></div>`;
+  }
+
+  if(league.games && league.games.length){
+    const live = league.games.filter(g=>g.status==='live');
+    const upcoming = league.games.filter(g=>g.status==='sched');
+    const finals = league.games.filter(g=>g.status==='final');
+    if(live.length) html += `<div class="section-title first">Live now</div><div class="grid">${live.map(g=>gameCard(g)).join('')}</div>`;
+    if(upcoming.length) html += `<div class="section-title ${live.length?'':'first'}">Upcoming</div><div class="grid">${upcoming.map(g=>gameCard(g)).join('')}</div>`;
+    if(finals.length) html += `<div class="section-title">Recent results</div><div class="grid">${finals.map(g=>gameCard(g)).join('')}</div>`;
+  } else if(league.games){
+    html += `<div class="empty-note">No games currently scheduled — check back once the season calendar opens.</div>`;
+  }
+
+  if(league.events && league.events.length){
+    html += `<div class="section-title first">Schedule</div>` + league.events.map(eventCard).join('');
+  }
+  if(league.standings){
+    html += `<div class="section-title">Standings</div>`;
+    if(league.standingsNote) html += `<div class="panel-note" style="margin-bottom:10px;">${league.standingsNote}</div>`;
+    html += standingsTable(league);
+  }
+
+  if(ESPN_PATH[key]){
+    html += `<div style="text-align:center;margin-top:26px;"><span class="panel-note">This board auto-refreshes every ${REFRESH_MS/1000}s.</span></div>`;
+  } else {
+    html += `<div style="text-align:center;margin-top:26px;"><button class="refresh-btn small" onclick="requestRefresh('${league.label}')">↻ Refresh ${league.label} via chat</button></div>`;
+  }
+
+  wrap.innerHTML = html;
+  return wrap;
+}
+
+/* ---------- My Teams tab ---------- */
+function renderFavoritesTab(){
+  const wrap = document.createElement('div');
+  let html = `
+    <div class="add-fav-row">
+      <input id="favInput" type="text" placeholder="Add a team by name (e.g. Eagles, Yankees, Arsenal)…">
+      <button onclick="addFavFromInput()">★ Add</button>
+    </div>`;
+
+  if(!favorites.length){
+    html += `<div class="placeholder"><h3>No teams starred yet</h3><p>Add a team above, or tap the ☆ next to any team on a game card to pin it here.</p></div>`;
+    wrap.innerHTML = html;
+    return wrap;
+  }
+
+  html += `<div class="fav-chip-row">` + favorites.map(f =>
+    `<div class="fav-chip"><span class="star-btn on">★</span>${f}<button class="rm" onclick="toggleFav('${f.replace(/'/g,"\\'")}')" title="Remove">✕</button></div>`
+  ).join('') + `</div>`;
+
+  const matches = [];
+  ORDER.forEach(key => {
+    if(key==='favorites') return;
+    const league = DATA[key];
+    if(!league.games) return;
+    league.games.forEach(g => {
+      if(favorites.some(f => g.a.toLowerCase().includes(f.toLowerCase()) || g.h.toLowerCase().includes(f.toLowerCase()))){
+        matches.push({g, league: league.label});
+      }
+    });
+  });
+  matches.sort((x,y) => (x.g.status==='live'?0:x.g.status==='sched'?1:2) - (y.g.status==='live'?0:y.g.status==='sched'?1:2));
+
+  if(matches.length){
+    html += `<div class="section-title">Games involving your teams</div><div class="grid">` + matches.map(m => gameCard(m.g, m.league)).join('') + `</div>`;
+  } else {
+    html += `<div class="empty-note">No scheduled or live games found for your teams right now.</div>`;
+  }
+  wrap.innerHTML = html;
+  bindFavInputEnter(wrap);
+  return wrap;
+}
+function bindFavInputEnter(wrap){
+  const input = wrap.querySelector('#favInput');
+  if(input) input.addEventListener('keydown', e => { if(e.key==='Enter') addFavFromInput(); });
+}
+async function addFavFromInput(){
+  const input = document.getElementById('favInput');
+  if(!input) return;
+  const val = input.value.trim();
+  if(!val) return;
+  if(!isFav(val)){ favorites.push(val); await saveFavorites(); }
+  input.value='';
+  renderTabs();
+  renderActive();
+}
+
+/* ---------- Search ---------- */
+function renderSearchResults(query){
+  const wrap = document.createElement('div');
+  const q = query.toLowerCase();
+  const matches = [];
+  ORDER.forEach(key => {
+    if(key==='favorites') return;
+    const league = DATA[key];
+    if(league.games){
+      league.games.forEach(g => { if(g.a.toLowerCase().includes(q)||g.h.toLowerCase().includes(q)) matches.push({type:'game', g, league: league.label}); });
+    }
+    if(league.events){
+      league.events.forEach(e => { if(e.name.toLowerCase().includes(q)||(e.sub&&e.sub.toLowerCase().includes(q))) matches.push({type:'event', e, league: league.label}); });
+    }
+  });
+  let html = `<div class="section-title first">Results for "${query}"</div>`;
+  if(!matches.length){
+    html += `<div class="empty-note">No matches in the boards currently loaded. Try a shorter name, or ask to refresh a specific league.</div>`;
+  } else {
+    const games = matches.filter(m=>m.type==='game');
+    const events = matches.filter(m=>m.type==='event');
+    if(games.length) html += `<div class="grid">${games.map(m=>gameCard(m.g, m.league)).join('')}</div>`;
+    if(events.length) html += `<div style="margin-top:14px;">${events.map(m=>eventCard(m.e)).join('')}</div>`;
+  }
+  wrap.innerHTML = html;
+  return wrap;
+}
+
+/* ---------- Live strip ---------- */
+function collectLiveGames(){
+  const out = [];
+  ORDER.forEach(key => {
+    if(key==='favorites') return;
+    const league = DATA[key];
+    if(!league.games) return;
+    league.games.forEach(g => { if(g.status==='live') out.push({g, key, label: league.label}); });
+  });
+  return out;
+}
+function renderLiveStrip(){
+  const el = document.getElementById('liveStrip');
+  const live = collectLiveGames();
+  if(!live.length){
+    el.innerHTML = `<div class="empty">No games live right now — check the Upcoming section on any board.</div>`;
+    return;
+  }
+  el.innerHTML = live.map(item => `
+    <div class="lchip" onclick="jumpToTab('${item.key}')">
+      <span class="lg-league"><span class="d"></span>${item.label}</span>
+      <span class="lg-teams">${item.g.a} ${item.g.as}–${item.g.hs} ${item.g.h}</span>
+    </div>`).join('');
+}
+function jumpToTab(key){
+  activeTab = key;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.key===key));
+  renderActive();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Tabs ---------- */
+let activeTab = 'nfl';
+function hasLive(key){
+  const l = DATA[key];
+  return (l.games && l.games.some(g=>g.status==='live')) || (l.events && l.events.some(e=>e.live));
+}
+function liveCount(key){
+  const l = DATA[key];
+  return l.games ? l.games.filter(g=>g.status==='live').length : 0;
+}
+function renderTabs(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  ORDER.forEach(key => {
+    const league = key==='favorites' ? {label:`★ My Teams${favorites.length?` (${favorites.length})`:''}`} : DATA[key];
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (key===activeTab ? ' active':'');
+    btn.dataset.key = key;
+    const lc = key==='favorites' ? 0 : liveCount(key);
+    btn.innerHTML = (key!=='favorites' && hasLive(key) ? '<span class="live-flag"></span>' : '') + league.label + (lc>0?` <span class="badge">${lc}</span>`:'');
+    btn.onclick = () => jumpToTab(key);
+    tabsEl.appendChild(btn);
+  });
+}
+function renderActive(){
+  const mainEl = document.getElementById('main');
+  mainEl.innerHTML = '';
+  const q = document.getElementById('searchInput').value.trim();
+  if(q.length >= 2){
+    mainEl.appendChild(renderSearchResults(q));
+    return;
+  }
+  if(activeTab === 'favorites') mainEl.appendChild(renderFavoritesTab());
+  else mainEl.appendChild(renderLeague(activeTab));
+}
+
+function requestRefresh(leagueLabel){
+  if(window.sendPrompt) window.sendPrompt(`Pull fresh live scores, schedule and standings for ${leagueLabel} and update the board.`);
+}
+
+/* ---------- Search box wiring ---------- */
+const searchInput = document.getElementById('searchInput');
+const searchBox = document.getElementById('searchBox');
+searchInput.addEventListener('input', () => {
+  searchBox.classList.toggle('has-value', searchInput.value.length>0);
+  renderActive();
+});
+document.getElementById('clearSearch').addEventListener('click', () => {
+  searchInput.value=''; searchBox.classList.remove('has-value'); renderActive(); searchInput.focus();
+});
+
+/* ---------- Boot ---------- */
+(async function init(){
+  await loadFavorites();
+  renderTabs();
+  renderActive();
+  renderLiveStrip();
+  updateSyncStatus(true);
+  document.getElementById('syncTime').textContent = 'Connecting…';
+  await refreshAll();
+  setInterval(refreshAll, REFRESH_MS);
+})();
+</script>
+</body>
+</html>
