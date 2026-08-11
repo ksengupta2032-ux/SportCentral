@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wire — All Sports, One Board</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #0a0c10;
+    --panel: #12151b;
+    --panel-2: #171b22;
+    --line: #262b34;
+    --amber: #ffb627;
+    --amber-dim: #8a6a20;
+    --live: #ff4d4d;
+    --teal: #2dd4bf;
+    --text: #ecebe6;
+    --muted: #8b93a1;
+    --muted-2: #5b6270;
+    --win: #6fcf97;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  ::selection{background:var(--amber);color:#0a0c10;}
+
+  .h-display{font-family:'Oswald',sans-serif;}
+  .h-cond{font-family:'Barlow Condensed',sans-serif;}
+
+  /* ===== Header / Scoreboard ===== */
+  header{
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(1200px 300px at 15% -20%, rgba(255,182,39,0.08), transparent),
+      var(--bg);
+    padding:28px 20px 0 20px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    backdrop-filter: blur(6px);
+  }
+  .header-inner{max-width:1100px;margin:0 auto;}
+  .brand-row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .brand{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,40px);
+    letter-spacing:0.5px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand .dot{
+    width:11px;height:11px;border-radius:50%;
+    background:var(--live);
+    box-shadow:0 0 10px var(--live);
+    animation:pulse 1.6s infinite;
+    flex-shrink:0;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.4; transform:scale(0.8);}
+  }
+  .clock{
+    font-family:'Oswald',sans-serif;
+    color:var(--amber);
+    font-variant-numeric:tabular-nums;
+    font-size:15px;
+    letter-spacing:0.5px;
+    text-align:right;
+    line-height:1.4;
+  }
+  .clock .sub{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}
+
+  /* ===== Tabs ===== */
+  .tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:14px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    padding:9px 16px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--muted);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s ease;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .tab:hover{color:var(--text);border-color:var(--amber-dim);}
+  .tab.active{
+    background:var(--amber);
+    border-color:var(--amber);
+    color:#141414;
+  }
+  .tab .live-flag{
+    width:6px;height:6px;border-radius:50%;background:var(--live);
+    box-shadow:0 0 6px var(--live);
+  }
+
+  main{max-width:1100px;margin:0 auto;padding:26px 20px 0;}
+
+  .section-title{
+    font-family:'Oswald',sans-serif;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--muted);
+    margin:28px 0 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+  .section-title.first{margin-top:0;}
+
+  /* ===== Game cards ===== */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card.live{border-color:rgba(255,77,77,0.5); box-shadow:0 0 0 1px rgba(255,77,77,0.12), 0 0 24px rgba(255,77,77,0.06);}
+  .card-tag{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:var(--muted-2);
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .status-live{color:var(--live);font-weight:700;display:flex;align-items:center;gap:5px;}
+  .status-live .d{width:6px;height:6px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite;}
+  .status-final{color:var(--muted-2);}
+  .status-sched{color:var(--teal);}
+  .team-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;}
+  .team-name{font-size:15px;font-weight:500;}
+  .team-name.winner{color:var(--text);font-weight:700;}
+  .team-name.loser{color:var(--muted);}
+  .score{
+    font-family:'Oswald',sans-serif;
+    font-size:19px;
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
+  .score.winner{color:var(--amber);}
+  .score.loser{color:var(--muted);}
+  .vs-line{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0 2px; margin-top:4px; border-top:1px dashed var(--line);
+    font-size:13px; color:var(--muted);
+  }
+  .prob-bar{
+    height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:8px;display:flex;
+  }
+  .prob-bar span{display:block;height:100%;}
+
+  /* Event-style card (golf / mma cards / tournaments) */
+  .event-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px; margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .event-name{font-weight:600;font-size:15px;}
+  .event-sub{color:var(--muted);font-size:12.5px;margin-top:3px;}
+  .event-date{
+    font-family:'Barlow Condensed',sans-serif;
+    color:var(--amber);
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    white-space:nowrap;
+  }
+  .pill{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    padding:3px 9px;border-radius:999px;
+    border:1px solid var(--line); color:var(--muted-2);
+  }
+  .pill.title-fight{color:var(--amber);border-color:var(--amber-dim);}
+
+  /* ===== Standings table ===== */
+  table.standings{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.standings th{
+    text-align:left;color:var(--muted-2);font-weight:500;
+    font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:11.5px;
+    padding:8px 10px;border-bottom:1px solid var(--line);
+  }
+  table.standings td{padding:8px 10px;border-bottom:1px solid rgba(38,43,52,0.5);}
+  table.standings tr:hover td{background:rgba(255,255,255,0.02);}
+  .clinch{font-size:10px;color:var(--muted-2);margin-left:6px;}
+  .clinch.div{color:var(--teal);}
+  .clinch.conf, .clinch.wc{color:var(--amber);}
+  .div-header td{
+    font-family:'Barlow Condensed',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:1px;
+    font-size:11.5px; padding-top:16px; border-bottom:none;
+  }
+
+  /* ===== Placeholder (no live data loaded) ===== */
+  .placeholder{
+    background:var(--panel);border:1px dashed var(--line);border-radius:12px;
+    padding:40px 24px;text-align:center;color:var(--muted);
+  }
+  .placeholder h3{color:var(--text);font-family:'Oswald',sans-serif;font-weight:500;margin-bottom:8px;}
+  .refresh-btn{
+    margin-top:16px;
+    background:var(--amber);color:#141414;border:none;border-radius:999px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    padding:10px 22px;font-size:14px;cursor:pointer;
+  }
+  .refresh-btn:hover{background:#ffc659;}
+  .refresh-btn.small{
+    background:transparent;border:1px solid var(--amber-dim);color:var(--amber);
+    padding:6px 14px;font-size:12px;margin:0;
+  }
+  .refresh-btn.small:hover{background:rgba(255,182,39,0.08);}
+
+  .panel-note{
+    color:var(--muted-2);font-size:12px;margin-top:6px;
+  }
+
+  .empty-note{color:var(--muted-2);font-size:13.5px;padding:6px 2px 18px;}
+
+  footer{max-width:1100px;margin:50px auto 0;padding:20px;border-top:1px solid var(--line);color:var(--muted-2);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+  @media (max-width:520px){
+    .clock{text-align:left;}
+    .brand-row{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="brand"><span class="dot"></span>THE WIRE</div>
+      <div class="clock">
+        <span class="sub">Board synced</span>
+        <span id="syncTime"></span>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <span>Live scores, schedules &amp; standings across every major sport.</span>
+  <span>Tap "Get live data" on any board to pull a fresh snapshot.</span>
+</footer>
+
+<script>
+/* ============================================================
+   DATA — snapshot pulled at build time. Leagues marked
+   loaded:false haven't been fetched yet; the button sends a
+   chat message asking Claude to pull that board's data.
+   ============================================================ */
+const DATA = {
+
+nfl: { label:"NFL", loaded:true, note:"Preseason underway · regular season kicks off Sept 10", 
+  games:[
+    {status:"final", a:"Cardinals", as:30, h:"Panthers", hs:33, tag:"Hall of Fame Game · Aug 6"},
+    {status:"sched", a:"Bengals", h:"Lions", time:"Thu Aug 13, 7:00 PM ET"},
+    {status:"sched", a:"Packers", h:"Steelers", time:"Thu Aug 13, 7:00 PM ET"},
+    {status:"sched", a:"Colts", h:"Patriots", time:"Thu Aug 13, 7:30 PM ET"},
+    {status:"sched", a:"Cardinals", h:"Raiders", time:"Thu Aug 13, 8:00 PM ET"},
+    {status:"sched", a:"Chargers", h:"Texans", time:"Thu Aug 13, 8:00 PM ET"},
+    {status:"sched", a:"Titans", h:"49ers", time:"Thu Aug 13, 9:00 PM ET"},
+    {status:"sched", a:"Dolphins", h:"Commanders", time:"Fri Aug 14, 7:00 PM ET"},
+    {status:"sched", a:"Buccaneers", h:"Jets", time:"Fri Aug 14, 7:00 PM ET"},
+    {status:"sched", a:"Eagles", h:"Ravens", time:"Sat Aug 15, 7:00 PM ET"},
+  ],
+  standingsNote:"Final 2025 season standings — division champs & wild cards (2026 season starts Sept 10)",
+  standings:[
+    {conf:"AFC", div:"AFC East", team:"Patriots", w:14,l:3,tag:"z"},
+    {conf:"AFC", div:"AFC North", team:"Steelers", w:10,l:7,tag:"y"},
+    {conf:"AFC", div:"AFC South", team:"Jaguars", w:13,l:4,tag:"y"},
+    {conf:"AFC", div:"AFC West", team:"Broncos", w:14,l:3,tag:"z"},
+    {conf:"AFC", div:"Wild Card", team:"Bills", w:12,l:5,tag:"x"},
+    {conf:"AFC", div:"Wild Card", team:"Texans", w:12,l:5,tag:"x"},
+    {conf:"AFC", div:"Wild Card", team:"Chargers", w:11,l:6,tag:"x"},
+    {conf:"NFC", div:"NFC East", team:"Eagles", w:11,l:6,tag:"y"},
+    {conf:"NFC", div:"NFC North", team:"Bears", w:11,l:6,tag:"y"},
+    {conf:"NFC", div:"NFC South", team:"Panthers", w:8,l:9,tag:"y"},
+    {conf:"NFC", div:"NFC West", team:"Seahawks", w:14,l:3,tag:"z"},
+    {conf:"NFC", div:"Wild Card", team:"Rams", w:12,l:5,tag:"x"},
+    {conf:"NFC", div:"Wild Card", team:"49ers", w:12,l:5,tag:"x"},
+    {conf:"NFC", div:"Wild Card", team:"Packers", w:9,l:7,tag:"x"},
+  ],
+  champion:"Seattle Seahawks won Super Bowl LX, def. New England Patriots 29–13"
+},
+
+nba: { label:"NBA", loaded:true, note:"Off-season — training camps open late September, tip-off in October",
+  games:[],
+  champion:"New York Knicks won the 2026 NBA Finals 4–1 over San Antonio Spurs",
+  extra:"OKC Thunder (West) and Cleveland Cavaliers (East) were the #1 seeds entering the playoffs."
+},
+
+mlb: { label:"MLB", loaded:true, note:"Regular season in full swing — pennant races heating up",
+  games:[
+    {status:"sched", a:"Pirates", h:"Marlins", time:"Tue Aug 11, 6:40 PM ET"},
+    {status:"sched", a:"Guardians", h:"Tigers", time:"Tue Aug 11, 6:40 PM ET"},
+    {status:"sched", a:"Cubs", h:"Nationals", time:"Tue Aug 11, 6:45 PM ET"},
+    {status:"sched", a:"Mariners", h:"Yankees", time:"Tue Aug 11, 7:05 PM ET"},
+    {status:"sched", a:"Red Sox", h:"Blue Jays", time:"Tue Aug 11, 7:07 PM ET"},
+    {status:"sched", a:"Mets", h:"Braves", time:"Tue Aug 11, 7:15 PM ET"},
+    {status:"sched", a:"Orioles", h:"Twins", time:"Tue Aug 11, 7:40 PM ET"},
+    {status:"sched", a:"Reds", h:"White Sox", time:"Tue Aug 11, 7:40 PM ET"},
+    {status:"sched", a:"Phillies", h:"Cardinals", time:"Tue Aug 11, 7:45 PM ET"},
+    {status:"sched", a:"Rangers", h:"Angels", time:"Tue Aug 11, 9:38 PM ET"},
+    {status:"final", a:"Royals", as:5, h:"Dodgers", hs:6, tag:"Mon Aug 10"},
+    {status:"final", a:"Phillies", as:6, h:"Cardinals", hs:5, tag:"Mon Aug 10"},
+    {status:"final", a:"Astros", as:6, h:"Giants", hs:3, tag:"Mon Aug 10"},
+    {status:"final", a:"Rays", as:10, h:"Athletics", hs:6, tag:"Mon Aug 10"},
+  ]
+},
+
+nhl: { label:"NHL", loaded:true, note:"Off-season — 2026-27 season opens Sept 29",
+  games:[
+    {status:"sched", a:"Panthers", h:"Hurricanes", time:"Tue Sep 29, 5:00 PM ET"},
+    {status:"sched", a:"Canadiens", h:"Maple Leafs", time:"Tue Sep 29, 7:00 PM ET"},
+    {status:"sched", a:"Rangers", h:"Bruins", time:"Tue Sep 29, 8:00 PM ET"},
+    {status:"sched", a:"Canucks", h:"Oilers", time:"Tue Sep 29, 10:00 PM ET"},
+    {status:"sched", a:"Blackhawks", h:"Golden Knights", time:"Tue Sep 29, 10:30 PM ET"},
+    {status:"sched", a:"Penguins", h:"Flyers", time:"Wed Sep 30, 7:30 PM ET"},
+    {status:"sched", a:"Kings", h:"Avalanche", time:"Wed Sep 30, 10:00 PM ET"},
+  ],
+  champion:"Carolina Hurricanes won the 2026 Stanley Cup 4–2 over Vegas Golden Knights"
+},
+
+epl: { label:"Premier League", loaded:true, note:"2026-27 season opens Aug 21",
+  games:[
+    {status:"sched", a:"Coventry City", h:"Arsenal", time:"Fri Aug 21, 3:00 PM ET"},
+    {status:"sched", a:"Man United", h:"Hull City", time:"Sat Aug 22, 7:30 AM ET"},
+    {status:"sched", a:"Crystal Palace", h:"Everton", time:"Sat Aug 22, 10:00 AM ET"},
+    {status:"sched", a:"Sunderland", h:"Ipswich Town", time:"Sat Aug 22, 10:00 AM ET"},
+    {status:"sched", a:"Leeds United", h:"Nottm Forest", time:"Sat Aug 22, 10:00 AM ET"},
+    {status:"sched", a:"Tottenham", h:"Brentford", time:"Sat Aug 22, 12:30 PM ET"},
+    {status:"sched", a:"Aston Villa", h:"Brighton", time:"Sun Aug 23, 9:00 AM ET"},
+    {status:"sched", a:"Bournemouth", h:"Man City", time:"Sun Aug 23, 9:00 AM ET"},
+    {status:"sched", a:"Liverpool", h:"Newcastle", time:"Sun Aug 23, 11:30 AM ET"},
+    {status:"sched", a:"Chelsea", h:"Fulham", time:"Mon Aug 24, 3:00 PM ET"},
+  ]
+},
+
+golf: { label:"Golf", loaded:true, note:"PGA Tour — FedEx Cup Playoffs window (next major event TBD on tour)",
+  events:[
+    {name:"Truist Championship", date:"May 7", status:"Completed"},
+    {name:"ONEflight Myrtle Beach Classic", date:"May 7", status:"Completed"},
+    {name:"Cadillac Championship", date:"Apr 30", status:"Completed"},
+    {name:"Zurich Classic of New Orleans", date:"Apr 23", status:"Completed"},
+    {name:"RBC Heritage", date:"Apr 16", status:"Completed"},
+    {name:"Masters Tournament", date:"Apr 9", status:"Completed"},
+  ]
+},
+
+mma: { label:"MMA", loaded:true, note:"UFC 330: Makhachev vs. Machado Garry headlines this weekend",
+  events:[
+    {name:"UFC 330: Makhachev vs. Machado Garry", sub:"Islam Makhachev vs Ian Machado Garry · Welterweight title", date:"Sat Aug 15, 10:30 PM ET", title:true},
+    {name:"UFC 330 co-main", sub:"Mackenzie Dern vs Gillian Robertson · Strawweight title", date:"Sat Aug 15, 10:00 PM ET", title:true},
+    {name:"Dana White's Contender Series", sub:"Season 10, 5 preliminary bouts", date:"Tue Aug 11, 7:00 PM ET"},
+    {name:"Dana White's Contender Series", sub:"Season 10, Week 2", date:"Tue Aug 18, 7:00 PM ET"},
+    {name:"UFC Fight Night: Gamrot vs. Salkilld", sub:"Salkilld won by submission, round 1", date:"Completed Aug 8"},
+  ]
+},
+
+tennis: { label:"Tennis", loaded:true, note:"ATP Challenger &amp; ITF matches in progress today (main-tour data available on request)",
+  events:[
+    {name:"Wallin vs Taberner", sub:"ATP Challenger Hamburg · Set 3, 1–1", date:"Live now", live:true},
+    {name:"Kirkin vs Nedic", sub:"ATP Challenger Hamburg · Set 3, 1–1", date:"Live now", live:true},
+    {name:"Sanchez Izquierdo vs Piraino", sub:"ATP Challenger Todi · Set 1", date:"Live now", live:true},
+    {name:"Houkes vs Nagal", sub:"ATP Challenger Hamburg", date:"Tue Aug 11, 10:00 AM ET"},
+    {name:"Wendelken vs Gojo", sub:"ATP Challenger Brownsburg", date:"Tue Aug 11, 10:00 AM ET"},
+  ]
+},
+
+wnba:{label:"WNBA", loaded:false},
+ncaafb:{label:"NCAA Football", loaded:false},
+ncaamb:{label:"NCAA Men's BB", loaded:false},
+ncaawb:{label:"NCAA Women's BB", loaded:false},
+laliga:{label:"La Liga", loaded:false},
+seriea:{label:"Serie A", loaded:false},
+bundesliga:{label:"Bundesliga", loaded:false},
+ligue1:{label:"Ligue 1", loaded:false},
+mls:{label:"MLS", loaded:false},
+ucl:{label:"Champions League", loaded:false},
+worldcup:{label:"World Cup", loaded:false},
+nascar:{label:"NASCAR", loaded:false},
+cricket:{label:"Cricket", loaded:false},
+};
+
+const ORDER = ["nfl","nba","mlb","nhl","epl","golf","mma","tennis","wnba","ncaafb","ncaamb","ncaawb","laliga","seriea","bundesliga","ligue1","mls","ucl","worldcup","nascar","cricket"];
+
+/* ============================================================ */
+
+function fmtClock(){
+  const now = new Date();
+  const opts = {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short'};
+  return now.toLocaleString('en-US', opts);
+}
+document.getElementById('syncTime').textContent = fmtClock();
+
+function requestRefresh(leagueLabel){
+  if(window.sendPrompt){
+    window.sendPrompt(`Pull fresh live scores, schedule and standings for ${leagueLabel} and update the board.`);
+  }
+}
+
+function gameCard(g){
+  let statusHtml = '';
+  if(g.status === 'live'){
+    statusHtml = `<span class="status-live"><span class="d"></span>LIVE</span>`;
+  } else if(g.status === 'final'){
+    statusHtml = `<span class="status-final">FINAL</span>`;
+  } else {
+    statusHtml = `<span class="status-sched">UPCOMING</span>`;
+  }
+
+  const hasScore = (g.status === 'final' || g.status === 'live') && typeof g.hs === 'number';
+  let awayCls = '', homeCls = '';
+  if(hasScore){
+    if(g.as > g.hs){ awayCls='winner'; homeCls='loser'; }
+    else if(g.hs > g.as){ homeCls='winner'; awayCls='loser'; }
+  }
+
+  return `
+  <div class="card ${g.status==='live'?'live':''}">
+    <div class="card-tag"><span>${g.tag || ''}</span>${statusHtml}</div>
+    <div class="team-row">
+      <span class="team-name ${awayCls}">${g.a}</span>
+      ${hasScore ? `<span class="score ${awayCls}">${g.as}</span>` : ''}
+    </div>
+    <div class="team-row">
+      <span class="team-name ${homeCls}">${g.h}</span>
+      ${hasScore ? `<span class="score ${homeCls}">${g.hs}</span>` : ''}
+    </div>
+    ${!hasScore ? `<div class="vs-line"><span>${g.time || ''}</span></div>` : ''}
+  </div>`;
+}
+
+function eventCard(e){
+  return `
+  <div class="event-card">
+    <div>
+      <div class="event-name">${e.name} ${e.title ? '<span class="pill title-fight">Title</span>' : ''} ${e.live ? '<span class="pill" style="color:var(--live);border-color:var(--live)">Live</span>' : ''}</div>
+      ${e.sub ? `<div class="event-sub">${e.sub}</div>` : ''}
+    </div>
+    <div class="event-date">${e.date}${e.status ? ' · '+e.status : ''}</div>
+  </div>`;
+}
+
+function standingsTable(league){
+  const groups = {};
+  league.standings.forEach(row => {
+    if(!groups[row.div]) groups[row.div] = [];
+    groups[row.div].push(row);
+  });
+  let rows = '';
+  Object.keys(groups).forEach(div => {
+    rows += `<tr class="div-header"><td colspan="4">${div}</td></tr>`;
+    groups[div].forEach(r => {
+      const tagLabel = r.tag === 'z' ? '<span class="clinch conf">CONF</span>' : r.tag === 'y' ? '<span class="clinch div">DIV</span>' : r.tag === 'x' ? '<span class="clinch wc">WC</span>' : '';
+      rows += `<tr><td>${r.team} ${tagLabel}</td><td>${r.w}</td><td>${r.l}</td><td>${(r.w/(r.w+r.l)).toFixed(3).slice(1)}</td></tr>`;
+    });
+  });
+  return `
+  <table class="standings">
+    <thead><tr><th>Team</th><th>W</th><th>L</th><th>PCT</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderLeague(key){
+  const league = DATA[key];
+  const wrap = document.createElement('div');
+
+  if(!league.loaded){
+    wrap.innerHTML = `
+      <div class="placeholder">
+        <h3>No live board loaded for ${league.label} yet</h3>
+        <p>Ask for a fresh pull and I'll fetch current scores, schedule and standings.</p>
+        <button class="refresh-btn" onclick="requestRefresh('${league.label}')">Get live ${league.label} data</button>
+      </div>`;
+    return wrap;
+  }
+
+  let html = '';
+
+  if(league.note){
+    html += `<div class="panel-note" style="margin-bottom:18px;font-size:13px;">${league.note}</div>`;
+  }
+
+  if(league.champion){
+    html += `<div class="event-card" style="border-color:var(--amber-dim);margin-bottom:18px;">
+      <div><div class="event-name">🏆 ${league.champion}</div>${league.extra ? `<div class="event-sub">${league.extra}</div>` : ''}</div>
+    </div>`;
+  }
+
+  if(league.games && league.games.length){
+    const live = league.games.filter(g=>g.status==='live');
+    const upcoming = league.games.filter(g=>g.status==='sched');
+    const finals = league.games.filter(g=>g.status==='final');
+
+    if(live.length){
+      html += `<div class="section-title first">Live now</div><div class="grid">${live.map(gameCard).join('')}</div>`;
+    }
+    if(upcoming.length){
+      html += `<div class="section-title ${live.length?'':'first'}">Upcoming</div><div class="grid">${upcoming.map(gameCard).join('')}</div>`;
+    }
+    if(finals.length){
+      html += `<div class="section-title">Recent results</div><div class="grid">${finals.map(gameCard).join('')}</div>`;
+    }
+  } else if(league.games){
+    html += `<div class="empty-note">No games currently scheduled — check back once the season calendar opens.</div>`;
+  }
+
+  if(league.events && league.events.length){
+    html += `<div class="section-title first">Schedule</div>` + league.events.map(eventCard).join('');
+  }
+
+  if(league.standings){
+    html += `<div class="section-title">Standings</div>`;
+    if(league.standingsNote) html += `<div class="panel-note" style="margin-bottom:10px;">${league.standingsNote}</div>`;
+    html += standingsTable(league);
+  }
+
+  html += `<div style="text-align:center;margin-top:26px;">
+    <button class="refresh-btn small" onclick="requestRefresh('${league.label}')">↻ Refresh ${league.label}</button>
+  </div>`;
+
+  wrap.innerHTML = html;
+  return wrap;
+}
+
+/* ===== Tabs & mount ===== */
+const tabsEl = document.getElementById('tabs');
+const mainEl = document.getElementById('main');
+
+function hasLive(key){
+  const l = DATA[key];
+  return l.games && l.games.some(g=>g.status==='live') || (l.events && l.events.some(e=>e.live));
+}
+
+ORDER.forEach((key,i) => {
+  const league = DATA[key];
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (i===0 ? ' active':'');
+  btn.innerHTML = (hasLive(key) ? '<span class="live-flag"></span>' : '') + league.label;
+  btn.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    mainEl.innerHTML = '';
+    mainEl.appendChild(renderLeague(key));
+  };
+  tabsEl.appendChild(btn);
+});
+
+mainEl.appendChild(renderLeague(ORDER[0]));
+</script>
+</body>
+</html>
