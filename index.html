@@ -3,46 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Wire — All Sports, One Board</title>
+<title>SportingCentral — All Sports, One Board</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
   :root{
-    --bg: #0a0c10;
-    --panel: #12151b;
-    --panel-2: #171b22;
-    --line: #262b34;
-    --amber: #ffb627;
-    --amber-dim: #8a6a20;
-    --live: #ff4d4d;
-    --teal: #2dd4bf;
-    --text: #ecebe6;
-    --muted: #8b93a1;
-    --muted-2: #5b6270;
-    --star: #ffd54a;
+    --bg: #0a0a0a;
+    --panel: #161616;
+    --panel-2: #1e1e1e;
+    --line: #2b2b2b;
+    --amber: #ffd400;
+    --amber-dim: #8a7100;
+    --live: #ff3333;
+    --navy: #3a5ba9;
+    --text: #f5f5f0;
+    --muted: #9c9c94;
+    --muted-2: #5c5c54;
+    --heart: #ff5470;
+    --heart-dim: #7a2a38;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);}
   body{color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:60px;}
-  ::selection{background:var(--amber);color:#0a0c10;}
+  ::selection{background:var(--amber);color:#0a0a0a;}
   button{font-family:inherit;}
 
   /* ===== Header ===== */
   header{
+    border-top:3px solid var(--navy);
     border-bottom:1px solid var(--line);
-    background:radial-gradient(1200px 300px at 15% -20%, rgba(255,182,39,0.08), transparent), var(--bg);
+    background:radial-gradient(1200px 300px at 15% -20%, rgba(255,212,0,0.08), transparent), var(--bg);
     padding:24px 20px 0 20px;
     position:sticky;top:0;z-index:50;backdrop-filter: blur(6px);
   }
   .header-inner{max-width:1140px;margin:0 auto;}
   .brand-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:16px;}
-  .brand{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(26px,5vw,36px);letter-spacing:0.5px;display:flex;align-items:center;gap:10px;}
+  .brand{display:flex;align-items:center;gap:10px;}
   .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 0 10px var(--live);animation:pulse 1.6s infinite;flex-shrink:0;}
+  .brand-text{
+    font-family:'Oswald',sans-serif;font-weight:700;font-style:italic;
+    font-size:clamp(24px,4.6vw,34px);letter-spacing:-1.5px;
+    text-transform:uppercase;white-space:nowrap;
+    background-image:repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 2px, #cfcfcf 2px, #cfcfcf 3px);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand-text .cap{font-size:1.3em;letter-spacing:-2px;}
+  .brand-text .sp{letter-spacing:-0.5px;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
 
   .sync-status{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.6px;color:var(--muted-2);text-align:right;line-height:1.5;}
-  .sync-status .live-on{color:var(--teal);}
+  .sync-status .live-on{color:var(--navy);}
   .sync-status .updated{display:block;font-family:'Oswald',sans-serif;color:var(--amber);font-size:13px;font-variant-numeric:tabular-nums;}
+
+  .fav-toggle-btn{
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;color:var(--text);
+    font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:0.5px;
+    padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;
+    transition:border-color .15s;
+  }
+  .fav-toggle-btn:hover{border-color:var(--heart-dim);}
+  .fav-toggle-btn .heart-ic{color:var(--muted);}
+  .fav-toggle-btn.has-favs{border-color:var(--heart-dim);}
+  .fav-toggle-btn.has-favs .heart-ic{color:var(--heart);}
 
   .search-row{display:flex;gap:8px;margin-bottom:14px;}
   .search-box{
@@ -67,7 +89,7 @@
   }
   .live-strip::-webkit-scrollbar{display:none;}
   .live-strip .lchip{
-    flex:0 0 auto;background:var(--panel);border:1px solid rgba(255,77,77,0.4);border-radius:10px;
+    flex:0 0 auto;background:var(--panel);border:1px solid rgba(255,51,51,0.4);border-radius:10px;
     padding:8px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;
     display:flex;flex-direction:column;gap:2px;
   }
@@ -89,7 +111,7 @@
   .tab.active{background:var(--amber);border-color:var(--amber);color:#141414;}
   .tab .live-flag{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 6px var(--live);}
   .tab .badge{
-    background:rgba(255,77,77,0.18);color:var(--live);border-radius:999px;font-size:10.5px;padding:1px 6px;font-family:'Oswald',sans-serif;
+    background:rgba(255,51,51,0.18);color:var(--live);border-radius:999px;font-size:10.5px;padding:1px 6px;font-family:'Oswald',sans-serif;
   }
   .tab.active .badge{background:rgba(0,0,0,0.15);color:#141414;}
 
@@ -102,18 +124,18 @@
   /* ===== Game cards ===== */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden;}
-  .card.live{border-color:rgba(255,77,77,0.5);box-shadow:0 0 0 1px rgba(255,77,77,0.12),0 0 24px rgba(255,77,77,0.06);}
+  .card.live{border-color:rgba(255,51,51,0.5);box-shadow:0 0 0 1px rgba(255,51,51,0.12),0 0 24px rgba(255,51,51,0.06);}
   .card-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted-2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
   .card-tag .league-chip{color:var(--muted);}
   .status-live{color:var(--live);font-weight:700;display:flex;align-items:center;gap:5px;}
   .status-live .d{width:6px;height:6px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite;}
   .status-final{color:var(--muted-2);}
-  .status-sched{color:var(--teal);}
+  .status-sched{color:var(--navy);}
   .team-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:8px;}
   .team-left{display:flex;align-items:center;gap:7px;min-width:0;}
-  .star-btn{background:none;border:none;cursor:pointer;color:var(--line);font-size:15px;padding:0;line-height:1;flex-shrink:0;}
-  .star-btn.on{color:var(--star);}
-  .star-btn:hover{color:var(--star);}
+  .heart-btn{color:var(--line);font-size:15px;line-height:1;flex-shrink:0;}
+  .heart-btn.on{color:var(--heart);}
+  .team-logo{width:22px;height:22px;object-fit:contain;flex-shrink:0;border-radius:3px;}
   .team-name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .team-name.winner{color:var(--text);font-weight:700;}
   .team-name.loser{color:var(--muted);}
@@ -135,8 +157,10 @@
   table.standings th{text-align:left;color:var(--muted-2);font-weight:500;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:11.5px;padding:8px 10px;border-bottom:1px solid var(--line);}
   table.standings td{padding:8px 10px;border-bottom:1px solid rgba(38,43,52,0.5);}
   table.standings tr:hover td{background:rgba(255,255,255,0.02);}
+  table.standings tr.fav-row td{background:rgba(255,212,0,0.05);}
+  table.standings tr.fav-row td:first-child{color:var(--amber);font-weight:700;border-left:2px solid var(--amber);padding-left:8px;}
   .clinch{font-size:10px;color:var(--muted-2);margin-left:6px;}
-  .clinch.div{color:var(--teal);}
+  .clinch.div{color:var(--navy);}
   .clinch.conf,.clinch.wc{color:var(--amber);}
   .div-header td{font-family:'Barlow Condensed',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:11.5px;padding-top:16px;border-bottom:none;}
 
@@ -144,9 +168,9 @@
   .placeholder{background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:40px 24px;text-align:center;color:var(--muted);}
   .placeholder h3{color:var(--text);font-family:'Oswald',sans-serif;font-weight:500;margin-bottom:8px;}
   .refresh-btn{margin-top:16px;background:var(--amber);color:#141414;border:none;border-radius:999px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:10px 22px;font-size:14px;cursor:pointer;}
-  .refresh-btn:hover{background:#ffc659;}
+  .refresh-btn:hover{background:#ffe066;}
   .refresh-btn.small{background:transparent;border:1px solid var(--amber-dim);color:var(--amber);padding:6px 14px;font-size:12px;margin:0;}
-  .refresh-btn.small:hover{background:rgba(255,182,39,0.08);}
+  .refresh-btn.small:hover{background:rgba(255,212,0,0.08);}
   .panel-note{color:var(--muted-2);font-size:12px;margin-top:6px;}
   .empty-note{color:var(--muted-2);font-size:13.5px;padding:6px 2px 18px;}
 
@@ -157,7 +181,7 @@
   .add-fav-row button{background:var(--amber);color:#141414;border:none;border-radius:8px;padding:0 18px;font-weight:700;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;cursor:pointer;}
   .fav-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
   .fav-chip{background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:8px;}
-  .fav-chip .star-btn{color:var(--star);}
+  .fav-chip .heart-btn{color:var(--heart);}
   .fav-chip .rm{background:none;border:none;color:var(--muted-2);cursor:pointer;font-size:14px;}
   .fav-chip .rm:hover{color:var(--live);}
 
@@ -174,8 +198,9 @@
 <header>
   <div class="header-inner">
     <div class="brand-row">
-      <div class="brand"><span class="dot"></span>THE WIRE</div>
+      <div class="brand"><span class="dot"></span><span class="brand-text"><span class="cap">S</span><span class="sp">porting</span> <span class="cap">C</span><span class="sp">entral</span></span></div>
       <div class="sync-status">
+        <button id="favToggleBtn" class="fav-toggle-btn" onclick="jumpToTab('favorites')" title="My Favorites"><span class="heart-ic">♡</span> My Teams</button>
         <span id="syncLabel" class="live-on">● Auto-syncing every 45s</span>
         <span class="updated" id="syncTime">—</span>
       </div>
@@ -196,7 +221,7 @@
 
 <footer>
   <span id="footerNote">Live scores, schedules &amp; standings across every major sport — refreshing automatically.</span>
-  <span>Star a team to pin it to My Teams.</span>
+  <span>Add a team on the My Teams page to pin it.</span>
 </footer>
 
 <script>
@@ -288,9 +313,60 @@ ucl:{label:"Champions League", loaded:false, games:[]},
 worldcup:{label:"World Cup", loaded:false, games:[]},
 nascar:{label:"NASCAR", loaded:false},
 cricket:{label:"Cricket", loaded:false},
+volleyball:{label:"Volleyball", loaded:false},
+softball:{label:"Softball", loaded:false},
+lacrosse:{label:"Lacrosse", loaded:false},
+swimming:{label:"Swimming", loaded:false, note:"Meet-format sport — ask for a specific meet and I'll pull in results."},
+olympics:{label:"Olympics", loaded:false, note:"Next up: 2028 LA Summer Games (Jul 14–30, 2028). This board will populate with medal counts and events once competition begins."},
 };
 
-const ORDER = ["favorites","nfl","nba","mlb","nhl","epl","golf","mma","tennis","wnba","ncaafb","ncaamb","ncaawb","laliga","seriea","bundesliga","ligue1","mls","ucl","worldcup","nascar","cricket"];
+/* Logos for the static snapshot games above — live-fetched games get their
+   logo straight from the ESPN API response instead (see parseESPN). */
+const LOGO_MAP = {
+  nfl: {
+    Cardinals:"https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",
+    Panthers:"https://a.espncdn.com/i/teamlogos/nfl/500/car.png",
+    Bengals:"https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",
+    Lions:"https://a.espncdn.com/i/teamlogos/nfl/500/det.png",
+    Packers:"https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+    Steelers:"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+    Colts:"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+    Patriots:"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+    Raiders:"https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+    Chargers:"https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+    Texans:"https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",
+    Titans:"https://a.espncdn.com/i/teamlogos/nfl/500/ten.png",
+    "49ers":"https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+  },
+  mlb: {
+    Pirates:"https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
+    Marlins:"https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
+    Mariners:"https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
+    Yankees:"https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+    Mets:"https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+    Braves:"https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
+    Royals:"https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+    Dodgers:"https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
+    Phillies:"https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+    Cardinals:"https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+  },
+  nhl: {
+    Panthers:"https://a.espncdn.com/i/teamlogos/nhl/500/fla.png",
+    Hurricanes:"https://a.espncdn.com/i/teamlogos/nhl/500/car.png",
+    Canadiens:"https://a.espncdn.com/i/teamlogos/nhl/500/mtl.png",
+    "Maple Leafs":"https://a.espncdn.com/i/teamlogos/nhl/500/tor.png",
+  },
+};
+Object.keys(LOGO_MAP).forEach(key => {
+  const league = DATA[key];
+  if(!league || !league.games) return;
+  league.games.forEach(g => {
+    if(!g.aLogo && LOGO_MAP[key][g.a]) g.aLogo = LOGO_MAP[key][g.a];
+    if(!g.hLogo && LOGO_MAP[key][g.h]) g.hLogo = LOGO_MAP[key][g.h];
+  });
+});
+
+const ORDER = ["favorites","nfl","nba","mlb","nhl","epl","golf","mma","tennis","wnba","ncaafb","ncaamb","ncaawb","laliga","seriea","bundesliga","ligue1","mls","ucl","worldcup","nascar","cricket","volleyball","softball","lacrosse","swimming","olympics"];
 
 /* Leagues ESPN's free public scoreboard endpoint covers — these
    auto-refresh in the background. Anything not listed here stays
@@ -317,11 +393,19 @@ function fmtClock(d){
 
 /* ---------- Live fetch + normalize ---------- */
 let warnedOnce = false;
+function espnDateRange(daysAhead){
+  const fmt = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const start = new Date();
+  const end = new Date(start.getTime() + daysAhead*24*60*60*1000);
+  return `${fmt(start)}-${fmt(end)}`;
+}
 async function fetchLeague(key){
   const path = ESPN_PATH[key];
   if(!path) return null;
   try{
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard`);
+    // dates range pulls a full week of games — the bare /scoreboard endpoint
+    // only returns the current day's slate, which was hiding most upcoming games.
+    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard?dates=${espnDateRange(10)}&limit=300`);
     if(!res.ok) throw new Error('http '+res.status);
     const json = await res.json();
     return parseESPN(json);
@@ -347,6 +431,8 @@ function parseESPN(json){
       status,
       a: (away.team && (away.team.shortDisplayName||away.team.name)) || away.athlete && away.athlete.shortName || 'TBD',
       h: (home.team && (home.team.shortDisplayName||home.team.name)) || home.athlete && home.athlete.shortName || 'TBD',
+      aLogo: (away.team && away.team.logo) || '',
+      hLogo: (home.team && home.team.logo) || '',
     };
     if(status !== 'sched'){
       g.as = parseInt(away.score, 10) || 0;
@@ -420,9 +506,8 @@ async function toggleFav(name){
 }
 
 /* ---------- Card renderers ---------- */
-function starBtn(name){
-  const on = isFav(name);
-  return `<button class="star-btn ${on?'on':''}" title="${on?'Remove from My Teams':'Add to My Teams'}" onclick="event.stopPropagation();toggleFav('${name.replace(/'/g,"\\'")}')">${on?'★':'☆'}</button>`;
+function teamLogo(url){
+  return url ? `<img class="team-logo" src="${url}" alt="" loading="lazy" onerror="this.remove()">` : '';
 }
 
 function gameCard(g, leagueLabel){
@@ -440,11 +525,11 @@ function gameCard(g, leagueLabel){
   <div class="card ${g.status==='live'?'live':''}">
     <div class="card-tag"><span class="league-chip">${leagueLabel?leagueLabel+' · ':''}${g.tag||''}</span>${statusHtml}</div>
     <div class="team-row">
-      <span class="team-left">${starBtn(g.a)}<span class="team-name ${awayCls}">${g.a}</span></span>
+      <span class="team-left">${teamLogo(g.aLogo)}<span class="team-name ${awayCls}">${g.a}</span></span>
       ${hasScore?`<span class="score ${awayCls}">${g.as}</span>`:''}
     </div>
     <div class="team-row">
-      <span class="team-left">${starBtn(g.h)}<span class="team-name ${homeCls}">${g.h}</span></span>
+      <span class="team-left">${teamLogo(g.hLogo)}<span class="team-name ${homeCls}">${g.h}</span></span>
       ${hasScore?`<span class="score ${homeCls}">${g.hs}</span>`:''}
     </div>
     ${!hasScore?`<div class="vs-line"><span>${g.time||''}</span></div>`:''}
@@ -485,7 +570,7 @@ function renderLeague(key){
     wrap.innerHTML = `
       <div class="placeholder">
         <h3>No board loaded for ${league.label} yet</h3>
-        <p>This league isn't on the auto-sync list. Ask for a fresh pull and I'll fetch current scores, schedule and standings.</p>
+        <p>${league.note || "This league isn't on the auto-sync list. Ask for a fresh pull and I'll fetch current scores, schedule and standings."}</p>
         <button class="refresh-btn" onclick="requestRefresh('${league.label}')">Get live ${league.label} data</button>
       </div>`;
     return wrap;
@@ -534,17 +619,17 @@ function renderFavoritesTab(){
   let html = `
     <div class="add-fav-row">
       <input id="favInput" type="text" placeholder="Add a team by name (e.g. Eagles, Yankees, Arsenal)…">
-      <button onclick="addFavFromInput()">★ Add</button>
+      <button onclick="addFavFromInput()">♥ Add</button>
     </div>`;
 
   if(!favorites.length){
-    html += `<div class="placeholder"><h3>No teams starred yet</h3><p>Add a team above, or tap the ☆ next to any team on a game card to pin it here.</p></div>`;
+    html += `<div class="placeholder"><h3>No teams favorited yet</h3><p>Add a team above by name to pin it here.</p></div>`;
     wrap.innerHTML = html;
     return wrap;
   }
 
   html += `<div class="fav-chip-row">` + favorites.map(f =>
-    `<div class="fav-chip"><span class="star-btn on">★</span>${f}<button class="rm" onclick="toggleFav('${f.replace(/'/g,"\\'")}')" title="Remove">✕</button></div>`
+    `<div class="fav-chip"><span class="heart-btn on">♥</span>${f}<button class="rm" onclick="toggleFav('${f.replace(/'/g,"\\'")}')" title="Remove">✕</button></div>`
   ).join('') + `</div>`;
 
   const matches = [];
@@ -565,9 +650,35 @@ function renderFavoritesTab(){
   } else {
     html += `<div class="empty-note">No scheduled or live games found for your teams right now.</div>`;
   }
+
+  html += favStandingsSection();
+
   wrap.innerHTML = html;
   bindFavInputEnter(wrap);
   return wrap;
+}
+function favStandingsSection(){
+  const sections = [];
+  ORDER.forEach(key => {
+    if(key==='favorites') return;
+    const league = DATA[key];
+    if(!league.standings) return;
+    const rows = league.standings.filter(r => favorites.some(f => r.team.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(r.team.toLowerCase())));
+    if(rows.length) sections.push({label: league.label, rows});
+  });
+  if(!sections.length) return '';
+  let html = `<div class="section-title">Standings</div>`;
+  sections.forEach(s => {
+    html += `<div class="panel-note" style="margin:14px 0 6px;">${s.label}</div>` + favMiniStandingsTable(s.rows);
+  });
+  return html;
+}
+function favMiniStandingsTable(rows){
+  const body = rows.map(r => {
+    const tagLabel = r.tag==='z'?'<span class="clinch conf">CONF</span>':r.tag==='y'?'<span class="clinch div">DIV</span>':r.tag==='x'?'<span class="clinch wc">WC</span>':'';
+    return `<tr class="fav-row"><td>${r.team} ${tagLabel}</td><td>${r.w}</td><td>${r.l}</td><td>${(r.w/(r.w+r.l)).toFixed(3).slice(1)}</td></tr>`;
+  }).join('');
+  return `<table class="standings"><thead><tr><th>Team</th><th>W</th><th>L</th><th>PCT</th></tr></thead><tbody>${body}</tbody></table>`;
 }
 function bindFavInputEnter(wrap){
   const input = wrap.querySelector('#favInput');
@@ -657,7 +768,7 @@ function renderTabs(){
   const tabsEl = document.getElementById('tabs');
   tabsEl.innerHTML = '';
   ORDER.forEach(key => {
-    const league = key==='favorites' ? {label:`★ My Teams${favorites.length?` (${favorites.length})`:''}`} : DATA[key];
+    const league = key==='favorites' ? {label:`♥ My Teams${favorites.length?` (${favorites.length})`:''}`} : DATA[key];
     const btn = document.createElement('button');
     btn.className = 'tab' + (key===activeTab ? ' active':'');
     btn.dataset.key = key;
@@ -666,6 +777,13 @@ function renderTabs(){
     btn.onclick = () => jumpToTab(key);
     tabsEl.appendChild(btn);
   });
+  renderFavToggle();
+}
+function renderFavToggle(){
+  const btn = document.getElementById('favToggleBtn');
+  if(!btn) return;
+  btn.classList.toggle('has-favs', favorites.length>0);
+  btn.innerHTML = `<span class="heart-ic">${favorites.length?'♥':'♡'}</span> My Teams${favorites.length?` (${favorites.length})`:''}`;
 }
 function renderActive(){
   const mainEl = document.getElementById('main');
